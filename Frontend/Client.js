@@ -2,42 +2,93 @@
 
 const API_URL = 'http://localhost:5000';
 
-// DOM Elements
-const connectBtn = document.getElementById('connect-btn');
-const messageDiv = document.getElementById('message');
-
-// Fetch data from Python backend
-async function connectToServer() {
+// Crear producto
+async function createProduct(event) {
+    event.preventDefault();
+    
+    const name = document.getElementById('product-name').value;
+    const price = document.getElementById('product-price').value;
+    const description = document.getElementById('product-description').value;
+    
     try {
-        messageDiv.textContent = 'Connecting...';
-        
-        const response = await fetch(`${API_URL}/api/hello`, {
-            method: 'GET',
+        const response = await fetch(`${API_URL}/api/products`, {
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
+            body: JSON.stringify({
+                name: name,
+                price: parseFloat(price),
+                description: description
+            })
         });
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
         const data = await response.json();
-        messageDiv.textContent = data.message || 'Connected successfully!';
-        messageDiv.style.color = '#28a745';
+        
+        if (response.ok) {
+            showMessage(`✓ Producto creado: ${data.product.name}`, 'success');
+            document.getElementById('product-form').reset();
+            loadProducts(); // Recargar lista
+        } else {
+            showMessage(`✗ Error: ${data.message}`, 'error');
+        }
     } catch (error) {
-        console.error('Connection error:', error);
-        messageDiv.textContent = `Error: ${error.message}`;
-        messageDiv.style.color = '#dc3545';
+        console.error('Error:', error);
+        showMessage(`✗ Error de conexión: ${error.message}`, 'error');
     }
 }
 
-// Event listener
-if (connectBtn) {
-    connectBtn.addEventListener('click', connectToServer);
+// Cargar todos los productos
+async function loadProducts() {
+    try {
+        const response = await fetch(`${API_URL}/api/products`);
+        const data = await response.json();
+        
+        const productList = document.getElementById('product-list');
+        
+        if (data.products.length === 0) {
+            productList.innerHTML = '<p>No hay productos aún. ¡Crea el primero!</p>';
+            return;
+        }
+        
+        productList.innerHTML = data.products.map(product => `
+            <div class="product-card">
+                <h3>${product.name}</h3>
+                <p class="price">$${product.price.toFixed(2)}</p>
+                <p>${product.description || 'Sin descripción'}</p>
+            </div>
+        `).join('');
+        
+    } catch (error) {
+        console.error('Error cargando productos:', error);
+        showMessage('Error al cargar productos', 'error');
+    }
 }
 
-// Auto-connect on page load (optional)
+// Mostrar mensajes
+function showMessage(message, type) {
+    const messageDiv = document.getElementById('message');
+    if (messageDiv) {
+        messageDiv.textContent = message;
+        messageDiv.className = `message ${type}`;
+        messageDiv.style.display = 'block';
+        
+        setTimeout(() => {
+            messageDiv.style.display = 'none';
+        }, 3000);
+    }
+}
+
+// Inicializar cuando cargue la página
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('Frontend loaded. Ready to connect to server.py');
+    console.log('Frontend cargado y conectado al servidor');
+    
+    // Configurar formulario
+    const form = document.getElementById('product-form');
+    if (form) {
+        form.addEventListener('submit', createProduct);
+    }
+    
+    // Cargar productos iniciales
+    loadProducts();
 });

@@ -19,21 +19,45 @@ Este proyecto consiste en una aplicación web full-stack con:
 ### Backend
 ```bash
 cd Backend
-pip install -r requirements.txt  # Si tienes dependencias
-python Server.py
+pip install flask flask-cors
 ```
 
 ### Frontend
-```bash
-cd Frontend
-# Abre Client.js en tu navegador o usa un servidor local
-```
+No requiere instalación adicional, solo un navegador web.
 
 ## 💻 Uso
 
-1. Inicia el servidor backend ejecutando `Server.py`
-2. Abre el cliente frontend en tu navegador
-3. La aplicación estará lista para usar
+### 1. Iniciar el Backend
+Abre una terminal y ejecuta:
+```bash
+cd Backend
+python Server.py
+```
+El servidor se iniciará en `http://localhost:5000`
+
+### 2. Abrir el Frontend
+Opción A - Abrir directamente:
+- Navega a la carpeta `Frontend`
+- Abre el archivo `index.html` en tu navegador
+
+Opción B - Con servidor local (recomendado):
+```bash
+cd Frontend
+python -m http.server 8000
+```
+Luego abre `http://localhost:8000` en tu navegador
+
+### 3. Usar la aplicación
+- Completa el formulario con nombre, precio y descripción del producto
+- Haz clic en "Crear Producto"
+- El producto aparecerá en la lista automáticamente
+
+## 🔌 API Endpoints
+
+- `GET /` - Mensaje de bienvenida
+- `GET /health` - Estado del servidor
+- `POST /api/products` - Crear nuevo producto
+- `GET /api/products` - Obtener todos los productos
 
 ## 📁 Estructura del Proyecto
 
